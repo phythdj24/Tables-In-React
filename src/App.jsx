@@ -1,15 +1,19 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 
 const App = () => {
-  const [data, setData] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+
 
   const fetchData = async () => {
     try {
-      const res = await fetch('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
+      const res = await fetch('https://dummyjson.com/products?limit=100');
       const resData = await res.json();
-      setData(resData);
+      setProducts(resData.products);
+      console.log(resData)
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -19,26 +23,40 @@ const App = () => {
     fetchData();
   }, []);
 
+  const selectPageHandler = (selectedPage)=>{
+    setPage(selectedPage)
+  }
+
   return (
     <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((i, index) => (
-            <tr key={index}>
-              <td>{i.name}</td>
-              <td>{i.email}</td>
-              <td>{i.role}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {
+        products.length>0 && <div className='products'>
+            {
+              products.slice(page*10 - 10,page * 10).map((prod)=>{
+            return ( <span className='products_single' key={prod.id}>
+              <img src={prod.thumbnail} alt={prod.title} />
+              <span>{prod.title}</span>
+            </span>
+            )
+              })
+  
+            }
+        </div>
+      }
+{
+  products.length >0 && ( <div className='pagination'>
+    <span>◀</span>
+    {
+     [...Array(products.length / 10)].map((_,i)=>{
+          return <span onClick={()=>selectPageHandler(i + 1)} key={i}>{i + 1}</span>
+     })
+    }
+    
+    <span>▶</span>
+  </div>
+  )
+}
+
     </div>
   );
 };
